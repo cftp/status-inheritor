@@ -41,24 +41,7 @@ class status_inheritor {
 		add_action( 'save_post',                   array( $this, 'save_post' ), 10, 2 );
 
 		# Filters
-		add_filter( 'euapi_plugin_handler',        array( $this, 'update_handler' ), 10, 2 );
-
-	}
-
-	function update_handler( EUAPI_Handler $handler = null, EUAPI_Item $item ) {
-
-		if ( 'status-inheritor/status-inheritor.php' == $item->file ) {
-
-			$handler = new EUAPI_Handler_GitHub( array(
-				'type'       => $item->type,
-				'file'       => $item->file,
-				'github_url' => 'https://github.com/cftp/status-inheritor',
-				'sslverify'  => false
-			) );
-
-		}
-
-		return $handler;
+		# none yet
 
 	}
 
