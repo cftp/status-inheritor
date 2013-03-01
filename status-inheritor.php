@@ -2,7 +2,7 @@
 /*
 Plugin Name:  Status Inheritor
 Description:  Provides a checkbox on the post editing screen allowing you to specify that children of the current post inherit the status of the current post. @TODO: Describe this more betterer.
-Version:      1.0
+Version:      1.1
 Plugin URI:   http://github.com/cftp/status-inheritor
 Author:       Code For The People Ltd
 Author URI:   http://codeforthepeople.com/
@@ -66,6 +66,9 @@ class status_inheritor {
 
 		$pto = get_post_type_object( get_post_type() );
 
+		if ( ! $this->allowed_post_type( $GLOBALS[ 'post' ] ) )
+			return;
+
 		if ( !$pto->hierarchical )
 			return;
 
@@ -119,6 +122,21 @@ class status_inheritor {
 
 		$this->no_recursion = false;
 
+	}
+
+	/**
+	 * Determines whether to allow status inheritance on
+	 * the post type of a given post.
+	 *
+	 * @param int|object $post Either a Post ID or object
+	 * @return bool True if the status inheritor is allowed for this post type
+	 * @author 
+	 **/
+	function allowed_post_type( $post ){
+		$post = get_post( $post );
+		$allowed_post_types = get_post_types( array( 'hierarchical' => true, 'public' => true ) );
+		$allowed_post_types = apply_filters( 'cftp_si_allowed_post_types', $allowed_post_types );
+		return in_array( $post->post_type, $allowed_post_types );
 	}
 
 	function load() {
