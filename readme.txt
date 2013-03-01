@@ -22,7 +22,6 @@ You can hook the `cftp_si_allowed_post_types` filter to control which hierarchic
 
 = 1.1 =
 
-* Add external update UI
 * Add `cftp_si_allowed_post_types` filter
 
 = 1.0 =

@@ -96,11 +96,18 @@ class status_inheritor {
 
 		$this->no_recursion = true;
 
+		// To avoid triggering `save_post` on descendant posts, with attendant issues
+		// where other plugins getting confused by seeing POST/GET variables, we access 
+		// the DB directly (and remember the transition post actions and 
+		// cache clearance).
+		global $wpdb;
+		$sql = " UPDATE $wpdb->posts SET post_status = %s WHERE ID = %d ";
 		foreach ( $children as $child ) {
-			wp_update_post( array(
-				'ID'          => $child->ID,
-				'post_status' => $post->post_status
-			) );
+			$wpdb->query( $wpdb->prepare( $sql, $post->post_status, $child->ID ) );
+			do_action('transition_post_status', $post->post_status, $child->post_status, $child);
+			do_action("{$child->post_status}_to_{$post->post_status}", $child);
+			do_action("{$post->post_status}_{$child->post_type}", $child->ID, $child);
+			clean_post_cache( $child->ID );
 		}
 
 		$this->no_recursion = false;
