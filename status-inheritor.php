@@ -1,8 +1,8 @@
 <?php
 /*
 Plugin Name:  Status Inheritor
-Description:  Provides a checkbox on the post editing screen allowing you to specify that children of the current post inherit the status of the current post. @TODO: Describe this more betterer.
-Version:      1.1
+Description:  Allows you to publish (or make draft) a post and all it's descendants (children, grandchildren, great-grandchildren, etc, etc) in one go.
+Version:      1.2
 Plugin URI:   http://github.com/cftp/status-inheritor
 Author:       Code For The People Ltd
 Author URI:   http://codeforthepeople.com/
@@ -10,7 +10,22 @@ Text Domain:  status_inheritor
 Domain Path:  /languages/
 License:      GPL v2 or later
 
-Copyright © 2013 Code For The People Ltd
+Copyright 2013 Code for the People Ltd
+				_____________
+			   /      ____   \
+		 _____/       \   \   \
+		/\    \        \___\   \
+	   /  \    \                \
+	  /   /    /          _______\
+	 /   /    /          \       /
+	/   /    /            \     /
+	\   \    \ _____    ___\   /
+	 \   \    /\    \  /       \
+	  \   \  /  \____\/    _____\
+	   \   \/        /    /    / \
+		\           /____/    /___\
+		 \                        /
+		  \______________________/
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
