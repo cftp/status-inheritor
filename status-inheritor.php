@@ -56,7 +56,7 @@ class status_inheritor {
 			return;
 
 		echo '<div class="misc-pub-section">';
-		printf( '<label><input type="checkbox" name="bestow_status" value="1" /> %s</label>', __( 'Apply this status to all children', 'status_inheritor' ) );
+		printf( '<label><input type="checkbox" name="bestow_status" value="1" /> %s</label>', __( 'Apply this status to all descendants', 'status_inheritor' ) );
 		echo '</div>';
 
 	}
@@ -85,13 +85,9 @@ class status_inheritor {
 			$post_status['inherit']
 		);
 
-		$children = get_pages( array(
-			'post_type'   => $pto->name,
-			'child_of'    => $post->ID,
-			'post_status' => $post_status,
-		) );
+		$descendants = $this->get_post_descendants( $post );
 
-		if ( empty( $children ) )
+		if ( empty( $descendants ) )
 			return;
 
 		$this->no_recursion = true;
@@ -102,16 +98,55 @@ class status_inheritor {
 		// cache clearance).
 		global $wpdb;
 		$sql = " UPDATE $wpdb->posts SET post_status = %s WHERE ID = %d ";
-		foreach ( $children as $child ) {
-			$wpdb->query( $wpdb->prepare( $sql, $post->post_status, $child->ID ) );
-			do_action('transition_post_status', $post->post_status, $child->post_status, $child);
-			do_action("{$child->post_status}_to_{$post->post_status}", $child);
-			do_action("{$post->post_status}_{$child->post_type}", $child->ID, $child);
-			clean_post_cache( $child->ID );
+		foreach ( $descendants as $descendant_id ) {
+			$descendant = get_post( $descendant_id );
+			$wpdb->query( $wpdb->prepare( $sql, $post->post_status, $descendant->ID ) );
+			do_action('transition_post_status', $post->post_status, $descendant->post_status, $descendant);
+			do_action("{$descendant->post_status}_to_{$post->post_status}", $descendant);
+			do_action("{$post->post_status}_{$descendant->post_type}", $descendant->ID, $descendant);
+			clean_post_cache( $descendant->ID );
 		}
 
 		$this->no_recursion = false;
 
+	}
+
+	/**
+	 * Retrieve direct children of a post.
+	 *
+	 * @param int|object $post Post ID or post object
+	 * @return array Child post IDs or empty array if none are found.
+	 */
+	function get_post_children( $post ) {
+
+		if ( ! $post = get_post( $post ) )
+			return array();
+
+		return get_posts( array( 'post_type' => 'any', 'post_status' => 'any', 'post_parent' => $post->ID, 'fields' => 'ids' ) );
+	}
+
+	/**
+	 * Retrieve all descendants of a post as IDs.
+	 *
+	 * @param int|object $post Post ID or post object
+	 * @param array $descendants An array of IDs to which we are adding recursively
+	 * @return array Descendant IDs or empty array if none are found.
+	 */
+	function get_post_descendants( $post, $descendants = null ) {
+
+		if ( ! $post = get_post( $post ) )
+			return array();
+
+		if ( is_null( $descendants ) )
+			$descendants = array();
+		
+		$children = $this->get_post_children( $post );
+		$descendants = array_merge( $descendants, $children );
+		
+		foreach( $children as $child )
+			$descendants = $this->get_post_descendants( $child, $descendants );
+
+		return $descendants;
 	}
 
 	/**
